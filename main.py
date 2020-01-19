@@ -1,7 +1,47 @@
-from flask import Flask
+from functools import wraps
+import flask
 import json
 
-app = Flask(__name__)
+from users import User
+
+app = flask.Flask(__name__)
+
+def require_login(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        token = flask.request.cookies.get('token')
+        if not token or not User.verify_token(token):
+            return flask.redirect('/login')
+        return func(*args, **kwargs)
+    return wrapper
+
+
+@app.route('/users', methods=['POST'])
+def users():
+    if flask.request.method == 'POST':
+        values = (None,
+             flask.request.form['email'],
+             User.hash_password(flask.request.form['password']),
+             flask.request.form['name'],
+             flask.request.form['address'],
+             flask.request.form['telephone'])
+        User(*values).create()
+
+        return flask.jsonify("Login successful!")
+
+
+@app.route('/login', methods=['POST'])
+def login():
+    if flask.request.method == 'POST':
+        data = flask.request.form
+        user = User.find_by_email(data['email'])
+
+        if not user or not user.verify_password(data['password']):
+            return flask.jsonify({'token': None})
+
+        token = user.generate_token()
+        return flask.jsonify({'token': token.decode('utf8')})
+
 
 if __name__ == '__main__':
     app.run()

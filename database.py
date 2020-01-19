@@ -4,21 +4,17 @@ DB_NAME = 'database/database.sqlite3'
 
 conn = sqlite3.connect(DB_NAME)
 
-conn.cursor().execute(
-    '''
+conn.cursor().execute('''
     CREATE TABLE IF NOT EXISTS users
-    (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        email TEXT NOT NULL,
-        password TEXT NOT NULL,
-        name TEXT NOT NULL,
-        address TEXT NOT NULL,
-        telephone TEXT NOT NULL,
-        FOREIGN KEY(ads_owned) REFERENCES ads(id),
-        FOREIGN KEY(ads_bought) REFERENCES ads(id)
-    )
-    '''
-)
+        (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT NOT NULL,
+            password TEXT NOT NULL,
+            name TEXT NOT NULL,
+            address TEXT NOT NULL,
+            telephone TEXT NOT NULL
+        )
+''')
 
 conn.commit()
 
