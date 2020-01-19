@@ -56,16 +56,37 @@ def login():
         return flask.jsonify({'token': token.decode('utf8')})
 
 
-@app.route('/users/<int:id>', methods=['GET'])
+@app.route('/users/<int:id>', methods=['GET', 'PATCH', 'DELETE'])
 def users_id(id):
-    user = User.find_by('id', id)
-    return flask.jsonify({
-        'id': user.id,
-        'email': user.email,
-        'name': user.name,
-        'address': user.address,
-        'telephone': user.telephone
-    })
+    if flask.request.method == 'POST':
+        user = User.find_by('id', id)
+        if not user:
+            return flask.jsonify("User not found!")
+
+        return flask.jsonify({
+            'id': user.id,
+            'email': user.email,
+            'name': user.name,
+            'address': user.address,
+            'telephone': user.telephone
+        })
+    
+    if flask.request.method == 'PATCH':
+        user = User.find_by('id', id)
+        if not user:
+            return flask.jsonify("User not found!")
+
+        for value in flask.request.form:
+            if value in ['email', 'password']:
+                continue
+
+            User.update(user.id, value, flask.request.form[value])
+
+        return "Success!"
+    
+    if flask.request.method == 'DELETE':
+        pass
+
 
 
 if __name__ == '__main__':

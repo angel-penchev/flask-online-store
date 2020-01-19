@@ -53,6 +53,17 @@ class User:
                 return User(*row)
 
     @staticmethod
+    def update(id, column, data):
+        with DB() as db:
+            db.execute(
+                '''
+                UPDATE users
+                SET {} = "{}"
+                WHERE id = {}
+                '''.format(column, data, id))
+        return
+
+    @staticmethod
     def hash_password(password):
         return hashlib.sha256(password.encode('utf-8')).hexdigest()
 
