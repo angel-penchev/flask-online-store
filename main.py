@@ -38,7 +38,7 @@ def users():
                   flask.request.form['telephone'])
         User(*values).create()
 
-        user = User.find_by_email(flask.request.form['email'])
+        user = User.find_by('email', flask.request.form['email'])
         token = user.generate_token()
         return flask.jsonify({'token': token.decode('utf8')})
 
@@ -47,13 +47,25 @@ def users():
 def login():
     if flask.request.method == 'POST':
         data = flask.request.form
-        user = User.find_by_email(data['email'])
+        user = User.find_by('email', data['email'])
 
         if not user or not user.verify_password(data['password']):
             return flask.jsonify({'token': None})
 
         token = user.generate_token()
         return flask.jsonify({'token': token.decode('utf8')})
+
+
+@app.route('/users/<int:id>', methods=['GET'])
+def users_id(id):
+    user = User.find_by('id', id)
+    return flask.jsonify({
+        'id': user.id,
+        'email': user.email,
+        'name': user.name,
+        'address': user.address,
+        'telephone': user.telephone
+    })
 
 
 if __name__ == '__main__':

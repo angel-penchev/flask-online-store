@@ -41,13 +41,13 @@ class User:
             return [User(*row) for row in rows]
 
     @staticmethod
-    def find_by_email(email):
-        if not email:
+    def find_by(column, data):
+        if not data:
             return None
         with DB() as db:
             row = db.execute(
-                'SELECT * FROM users WHERE email = ?',
-                (email,)
+                'SELECT * FROM users WHERE {} = ?'.format(column),
+                (data,)
             ).fetchone()
             if row:
                 return User(*row)
