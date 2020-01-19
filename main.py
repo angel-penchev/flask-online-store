@@ -6,6 +6,7 @@ from users import User
 
 app = flask.Flask(__name__)
 
+
 def require_login(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -16,18 +17,30 @@ def require_login(func):
     return wrapper
 
 
-@app.route('/users', methods=['POST'])
+@app.route('/users', methods=['GET', 'POST'])
 def users():
+
+    if flask.request.method == 'GET':
+        return flask.jsonify([{
+            'id': user.id,
+            'email': user.email,
+            'name': user.name,
+            'address': user.address,
+            'telephone': user.telephone
+        } for user in User.all()])
+
     if flask.request.method == 'POST':
         values = (None,
-             flask.request.form['email'],
-             User.hash_password(flask.request.form['password']),
-             flask.request.form['name'],
-             flask.request.form['address'],
-             flask.request.form['telephone'])
+                  flask.request.form['email'],
+                  User.hash_password(flask.request.form['password']),
+                  flask.request.form['name'],
+                  flask.request.form['address'],
+                  flask.request.form['telephone'])
         User(*values).create()
 
-        return flask.jsonify("Login successful!")
+        user = User.find_by_email(flask.request.form['email'])
+        token = user.generate_token()
+        return flask.jsonify({'token': token.decode('utf8')})
 
 
 @app.route('/login', methods=['POST'])
