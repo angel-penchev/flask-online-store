@@ -58,11 +58,11 @@ def login():
 
 @app.route('/users/<int:id>', methods=['GET', 'PATCH', 'DELETE'])
 def users_id(id):
-    if flask.request.method == 'POST':
-        user = User.find_by('id', id)
-        if not user:
-            return flask.jsonify("User not found!")
+    user = User.find_by('id', id)
+    if not user:
+        return flask.jsonify("User not found!")
 
+    if flask.request.method == 'POST':
         return flask.jsonify({
             'id': user.id,
             'email': user.email,
@@ -72,20 +72,16 @@ def users_id(id):
         })
     
     if flask.request.method == 'PATCH':
-        user = User.find_by('id', id)
-        if not user:
-            return flask.jsonify("User not found!")
-
         for value in flask.request.form:
             if value in ['email', 'password']:
                 continue
 
             User.update(user.id, value, flask.request.form[value])
-
         return "Success!"
     
     if flask.request.method == 'DELETE':
-        pass
+        User.delete(user.id)
+        return "Success!"
 
 
 

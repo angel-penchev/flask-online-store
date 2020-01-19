@@ -62,6 +62,16 @@ class User:
                 WHERE id = {}
                 '''.format(column, data, id))
         return
+    
+    @staticmethod
+    def delete(id):
+        with DB() as db:
+            db.execute(
+                '''
+                DELETE FROM users
+                WHERE id = {}
+                '''.format(id))
+        return
 
     @staticmethod
     def hash_password(password):
