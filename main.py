@@ -3,6 +3,7 @@ import flask
 import json
 
 from users import User
+from ads import Ads
 
 app = flask.Flask(__name__)
 
@@ -83,7 +84,22 @@ def users_id(id):
         User.delete(user.id)
         return "Success!"
 
+@app.route('/ads', methods=['POST'])
+def ads():
+    if flask.request.method == 'POST':
+        data = flask.request.form
+        Ads(*(
+            None,
+            data['title'],
+            data['description'],
+            data['price'],
+            data['date_created'],
+            1,
+            None
+        )).create()
 
+        return 'Success'
+        
 
 if __name__ == '__main__':
     app.run()
