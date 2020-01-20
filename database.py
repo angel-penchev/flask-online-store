@@ -16,6 +16,20 @@ conn.cursor().execute('''
         )
 ''')
 
+conn.cursor().execute('''
+    CREATE TABLE IF NOT EXISTS ads
+        (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            description TEXT NOT NULL,
+            price TEXT NOT NULL,
+            date_created TEXT NOT NULL,
+            is_active INTEGER NOT NULL,
+            FOREIGN KEY(owner_id) REFERENCES users(id),
+            FOREIGN KEY(buyer_id) REFERENCES users(id)
+        )
+''')
+
 conn.commit()
 
 
