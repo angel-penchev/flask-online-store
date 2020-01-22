@@ -90,7 +90,7 @@ class User:
         try:
             s.loads(token)
         except SignatureExpired:
-            return False
+            return None
         except BadSignature:
-            return False
-        return True
+            return None
+        return User.find_by('email', s.loads(token)['email'])

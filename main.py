@@ -11,10 +11,13 @@ app = flask.Flask(__name__)
 def require_login(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        token = flask.request.cookies.get('token')
-        if not token or not User.verify_token(token):
-            return flask.redirect('/login')
-        return func(*args, **kwargs)
+        token = flask.request.headers.get('token')
+        user = User.verify_token(token)
+    
+        if not token or not user:
+            return 'No user login'
+        return func(user, *args, **kwargs)
+
     return wrapper
 
 
@@ -85,7 +88,8 @@ def users_id(id):
         return "Success!"
 
 @app.route('/ads', methods=['POST'])
-def ads():
+@require_login
+def ads(user):
     if flask.request.method == 'POST':
         data = flask.request.form
         Ads(*(
@@ -95,11 +99,11 @@ def ads():
             data['price'],
             data['date_created'],
             1,
-            None
+            user.id
         )).create()
 
         return 'Success'
-        
+
 
 if __name__ == '__main__':
     app.run()
