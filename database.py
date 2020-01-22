@@ -16,6 +16,8 @@ conn.cursor().execute('''
         )
 ''')
 
+conn.commit()
+
 conn.cursor().execute('''
     CREATE TABLE IF NOT EXISTS ads
         (
@@ -25,6 +27,8 @@ conn.cursor().execute('''
             price TEXT NOT NULL,
             date_created TEXT NOT NULL,
             is_active INTEGER NOT NULL,
+            owner_id INTEGER,
+            buyer_id INTEGER,
             FOREIGN KEY(owner_id) REFERENCES users(id),
             FOREIGN KEY(buyer_id) REFERENCES users(id)
         )

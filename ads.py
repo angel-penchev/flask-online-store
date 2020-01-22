@@ -14,7 +14,7 @@ class Ads:
         with DB() as db:
             db.execute(
                 '''
-                INSERT INTO users (id, title, description, price, date_created, is_active, owner_id)
+                INSERT INTO ads (id, title, description, price, date_created, is_active, owner_id)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 ''', (
                     self.id,
