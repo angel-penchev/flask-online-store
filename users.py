@@ -72,6 +72,13 @@ class User:
                 WHERE id = {}
                 '''.format(id))
         return
+    
+    @staticmethod
+    def get_bought_ads(id):
+        with DB() as db:
+            db.execute("SELECT * FROM ads WHERE owner_id={} AND is_active=0".format(id))
+            bought_ads = db.fetchall()
+        return bought_ads
 
     @staticmethod
     def hash_password(password):
@@ -81,7 +88,7 @@ class User:
         return self.password == hashlib.sha256(password.encode('utf-8')).hexdigest()
 
     def generate_token(self):
-        s = Serializer(SECRET_KEY, expires_in=6000)
+        s = Serializer(SECRET_KEY, expires_in=604800)
         return s.dumps({'email': self.email})
 
     @staticmethod

@@ -1,6 +1,7 @@
 from functools import wraps
 import flask
 import json
+import sqlite3
 
 from users import User
 from ads import Ads
@@ -13,7 +14,7 @@ def require_login(func):
     def wrapper(*args, **kwargs):
         token = flask.request.headers.get('token')
         user = User.verify_token(token)
-    
+
         if not token or not user:
             return 'No user login'
         return func(user, *args, **kwargs)
@@ -64,9 +65,9 @@ def login():
 def users_id(id):
     user = User.find_by('id', id)
     if not user:
-        return flask.jsonify("User not found!")
+        return flask.jsonify("Nor is the user found, nor is he a coffie machine!"), 418
 
-    if flask.request.method == 'POST':
+    if flask.request.method == 'GET':
         return flask.jsonify({
             'id': user.id,
             'email': user.email,
@@ -74,7 +75,7 @@ def users_id(id):
             'address': user.address,
             'telephone': user.telephone
         })
-    
+
     if flask.request.method == 'PATCH':
         for value in flask.request.form:
             if value in ['email', 'password']:
@@ -82,10 +83,20 @@ def users_id(id):
 
             User.update(user.id, value, flask.request.form[value])
         return "Success!"
-    
+
     if flask.request.method == 'DELETE':
         User.delete(user.id)
         return "Success!"
+
+
+@app.route('/bought_ads', methods=['GET'])
+@require_login
+def bought_ads(user):
+    if flask.request.method == 'GET':
+        keys = ['id', 'title', 'description', 'price', 'date_created', 'is_active', 'owner_id', 'buyer_id']
+        ads = [{keys[i]: ad[i] for i in range(len(keys))} for ad in User.get_bought_ads(user.id)]
+        return flask.jsonify(ads)
+
 
 @app.route('/ads', methods=['POST'])
 @require_login
