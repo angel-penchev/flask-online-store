@@ -32,4 +32,16 @@ class Ads:
         with DB() as db:
             rows = db.execute('SELECT * FROM ads').fetchall()
             return [Ads(*row) for row in rows]
+
+    @staticmethod
+    def find_by(column, data):
+        if not data:
+            return None
+        with DB() as db:
+            row = db.execute(
+                'SELECT * FROM ads WHERE {} = ?'.format(column),
+                (data,)
+            ).fetchone()
+            if row:
+                return Ads(*row)
             
