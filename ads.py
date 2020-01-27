@@ -1,7 +1,7 @@
 from database import DB
 
 class Ads:
-    def __init__(self, id, title, description, price, date_created, is_active, owner_id):
+    def __init__(self, id, title, description, price, date_created, is_active, owner_id, buyer_id):
         self.id = id
         self.title = title
         self.description = description
@@ -9,6 +9,7 @@ class Ads:
         self.date_created = date_created
         self.is_active = is_active
         self.owner_id = owner_id
+        self.buyer_id = buyer_id
 
     def create(self):
         with DB() as db:
@@ -25,3 +26,10 @@ class Ads:
                     self.is_active,
                     self.owner_id))
             return self
+
+    @staticmethod
+    def all():
+        with DB() as db:
+            rows = db.execute('SELECT * FROM ads').fetchall()
+            return [Ads(*row) for row in rows]
+            

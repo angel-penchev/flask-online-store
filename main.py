@@ -98,9 +98,21 @@ def bought_ads(user):
         return flask.jsonify(ads)
 
 
-@app.route('/ads', methods=['POST'])
+@app.route('/ads', methods=['GET', 'POST'])
 @require_login
 def ads(user):
+    if flask.request.method == 'GET':
+        return flask.jsonify([{
+            'id': ads.id,
+            'title': ads.title, 
+            'description': ads.description,
+            'price': ads.price,
+            'date_created': ads.date_created,
+            'is_active': ads.is_active,
+            'owner_id': ads.owner_id,
+            'buyer_id': ads.buyer_id,
+        } for ads in Ads.all()])
+
     if flask.request.method == 'POST':
         data = flask.request.form
         Ads(*(
@@ -110,7 +122,8 @@ def ads(user):
             data['price'],
             data['date_created'],
             1,
-            user.id
+            user.id,
+            None
         )).create()
 
         return 'Success'
