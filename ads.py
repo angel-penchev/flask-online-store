@@ -44,4 +44,15 @@ class Ads:
             ).fetchone()
             if row:
                 return Ads(*row)
+
+    @staticmethod
+    def update(id, column, data):
+        with DB() as db:
+            db.execute(
+                '''
+                UPDATE ads
+                SET {} = "{}"
+                WHERE id = {}
+                '''.format(column, data, id))
+        return
             

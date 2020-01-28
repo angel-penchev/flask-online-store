@@ -143,6 +143,11 @@ def ads_id(id):
             'owner_id': ad.owner_id,
             'buyer_id': ad.buyer_id,
         })
+    
+    if flask.request.method == 'PATCH':
+        for value in flask.request.form:
+            Ads.update(ad.id, value, flask.request.form[value])
+        return "Success!"
 
 
 if __name__ == '__main__':
