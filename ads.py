@@ -55,4 +55,14 @@ class Ads:
                 WHERE id = {}
                 '''.format(column, data, id))
         return
+
+    @staticmethod
+    def delete(id):
+        with DB() as db:
+            db.execute(
+                '''
+                DELETE FROM ads
+                WHERE id = {}
+                '''.format(id))
+        return
             

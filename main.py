@@ -149,6 +149,10 @@ def ads_id(id):
             Ads.update(ad.id, value, flask.request.form[value])
         return "Success!"
 
+    if flask.request.method == 'DELETE':
+        Ads.delete(ad.id)
+        return "Success!"
+
 
 if __name__ == '__main__':
     app.run()
