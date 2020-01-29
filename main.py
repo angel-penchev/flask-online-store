@@ -85,6 +85,10 @@ def users_id(id):
         return 'Success'
 
     if flask.request.method == 'DELETE':
+        for ad in Ads.all():
+            if ad.owner_id == user.id:
+                Ads.delete(ad.id)
+
         User.delete(user.id)
         return 'Success'
 
