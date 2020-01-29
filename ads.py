@@ -1,5 +1,6 @@
 from database import DB
 
+
 class Ad:
     def __init__(self, id, title, description, price, date_created, is_active, owner_id, buyer_id):
         self.id = id
@@ -16,8 +17,8 @@ class Ad:
             db.execute(
                 '''
                 INSERT INTO ads (id, title, description, price, date_created, is_active, owner_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-                ''', (
+                VALUES ({}, {}, {}, {}, {}, {}, {})
+                '''.format(
                     self.id,
                     self.title,
                     self.description,
@@ -52,8 +53,7 @@ class Ad:
             return None
         with DB() as db:
             row = db.execute(
-                'SELECT * FROM ads WHERE {} = ?'.format(column),
-                (data,)
+                'SELECT * FROM ads WHERE {} = {}'.format(column, data)
             ).fetchone()
             if row:
                 return Ad(*row)
@@ -78,4 +78,3 @@ class Ad:
                 WHERE id = {}
                 '''.format(id))
         return
-            

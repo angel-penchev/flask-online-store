@@ -25,8 +25,8 @@ class User:
             db.execute(
                 '''
                 INSERT INTO users (email, password, name, address, telephone)
-                VALUES (?, ?, ?, ?, ?)
-                ''', (
+                VALUES ({}, {}, {}, {}, {})
+                '''.format(
                     self.email,
                     self.password,
                     self.name,
@@ -49,14 +49,14 @@ class User:
             'address': user.address,
             'telephone': user.telephone
         }
+
     @staticmethod
     def find_by(column, data):
         if not data:
             return None
         with DB() as db:
             row = db.execute(
-                'SELECT * FROM users WHERE {} = ?'.format(column),
-                (data,)
+                'SELECT * FROM users WHERE {} = {}'.format(column, data)
             ).fetchone()
             if row:
                 return User(*row)
@@ -71,7 +71,7 @@ class User:
                 WHERE id = {}
                 '''.format(column, data, id))
         return
-    
+
     @staticmethod
     def delete(id):
         with DB() as db:
@@ -81,11 +81,12 @@ class User:
                 WHERE id = {}
                 '''.format(id))
         return
-    
+
     @staticmethod
     def get_bought_ads(id):
         with DB() as db:
-            db.execute("SELECT * FROM ads WHERE owner_id={} AND is_active=0".format(id))
+            db.execute(
+                "SELECT * FROM ads WHERE owner_id={} AND is_active=0".format(id))
             bought_ads = db.fetchall()
         return bought_ads
 
