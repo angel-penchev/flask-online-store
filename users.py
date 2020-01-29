@@ -41,6 +41,15 @@ class User:
             return [User(*row) for row in rows]
 
     @staticmethod
+    def to_dict(user):
+        return {
+            'id': user.id,
+            'email': user.email,
+            'name': user.name,
+            'address': user.address,
+            'telephone': user.telephone
+        }
+    @staticmethod
     def find_by(column, data):
         if not data:
             return None

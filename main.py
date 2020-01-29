@@ -4,7 +4,7 @@ import json
 import sqlite3
 
 from users import User
-from ads import Ads
+from ads import Ad
 
 app = flask.Flask(__name__)
 
@@ -26,13 +26,7 @@ def require_login(func):
 def users():
 
     if flask.request.method == 'GET':
-        return flask.jsonify([{
-            'id': user.id,
-            'email': user.email,
-            'name': user.name,
-            'address': user.address,
-            'telephone': user.telephone
-        } for user in User.all()])
+        return flask.jsonify([User.to_dict(user) for user in User.all()])
 
     if flask.request.method == 'POST':
         values = (None,
@@ -68,13 +62,7 @@ def users_id(id):
         return flask.jsonify('Nor is the user found, nor is he a coffie machine!'), 418
 
     if flask.request.method == 'GET':
-        return flask.jsonify({
-            'id': user.id,
-            'email': user.email,
-            'name': user.name,
-            'address': user.address,
-            'telephone': user.telephone
-        })
+        return flask.jsonify(User.to_dict(user))
 
     if flask.request.method == 'PATCH':
         for value in flask.request.json:
@@ -85,9 +73,9 @@ def users_id(id):
         return 'Success'
 
     if flask.request.method == 'DELETE':
-        for ad in Ads.all():
+        for ad in Ad.all():
             if ad.owner_id == user.id:
-                Ads.delete(ad.id)
+                Ad.delete(ad.id)
 
         User.delete(user.id)
         return 'Success'
@@ -96,16 +84,7 @@ def users_id(id):
 @app.route('/ads', methods=['GET'])
 def get_ads():
     if flask.request.method == 'GET':
-        return flask.jsonify([{
-            'id': ads.id,
-            'title': ads.title,
-            'description': ads.description,
-            'price': ads.price,
-            'date_created': ads.date_created,
-            'is_active': ads.is_active,
-            'owner_id': ads.owner_id,
-            'buyer_id': ads.buyer_id,
-        } for ads in Ads.all()])
+        return flask.jsonify([Ad.to_dict(ad) for ad in Ad.all()])
 
 
 @app.route('/ads', methods=['POST'])
@@ -113,7 +92,7 @@ def get_ads():
 def post_ads(user):
     if flask.request.method == 'POST':
         data = flask.request.json
-        Ads(*(
+        Ad(*(
             None,
             data['title'],
             data['description'],
@@ -129,47 +108,38 @@ def post_ads(user):
 
 @app.route('/ads/<int:id>', methods=['GET'])
 def get_ads_id(id):
-    ad = Ads.find_by('id', id)
+    ad = Ad.find_by('id', id)
     if flask.request.method == 'GET':
-        return flask.jsonify({
-            'id': ad.id,
-            'title': ad.title,
-            'description': ad.description,
-            'price': ad.price,
-            'date_created': ad.date_created,
-            'is_active': ad.is_active,
-            'owner_id': ad.owner_id,
-            'buyer_id': ad.buyer_id,
-        })
+        return Ad.to_dict(ad)
 
 
 @app.route('/ads/<int:id>', methods=['PATCH', 'DELETE'])
 @require_login
 def ads_id(user, id):
-    ad = Ads.find_by('id', id)
+    ad = Ad.find_by('id', id)
     if ad.owner_id != user.id:
         return 'Unauthorized', 401
 
     if flask.request.method == 'PATCH':
         for value in flask.request.json:
-            Ads.update(ad.id, value, flask.request.json[value])
+            Ad.update(ad.id, value, flask.request.json[value])
         return 'Success'
 
     if flask.request.method == 'DELETE':
-        Ads.delete(ad.id)
+        Ad.delete(ad.id)
         return 'Success'
 
 
 @app.route('/ads/<int:id>/buy', methods=['POST'])
 @require_login
 def ads_id_buy(user, id):
-    ad = Ads.find_by('id', id)
+    ad = Ad.find_by('id', id)
 
     if ad.owner_id == user.id:
         return 'You cannot buy your own ad'
 
-    Ads.update(ad.id, 'is_active', 0)
-    Ads.update(ad.id, 'buyer_id', user.id)
+    Ad.update(ad.id, 'is_active', 0)
+    Ad.update(ad.id, 'buyer_id', user.id)
 
     return 'Success '
 
@@ -184,6 +154,17 @@ def bought_ads(user):
                 for i in range(len(keys))} for ad in User.get_bought_ads(user.id)]
         return flask.jsonify(ads)
 
+
+@app.route('/ads/search', methods=['GET'])
+def ads_search():
+    result = [Ad.to_dict(ad) for ad in Ad.all()]
+    if flask.request.method == 'GET':
+        for value in flask.request.json:
+            for ad in range(len(result)):
+                if flask.request.json[value] not in result[ad][value]:
+                    result.pop(ad)
+
+    return flask.jsonify(result)
 
 if __name__ == '__main__':
     app.run()

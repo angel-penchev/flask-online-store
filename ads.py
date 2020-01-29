@@ -1,6 +1,6 @@
 from database import DB
 
-class Ads:
+class Ad:
     def __init__(self, id, title, description, price, date_created, is_active, owner_id, buyer_id):
         self.id = id
         self.title = title
@@ -31,7 +31,20 @@ class Ads:
     def all():
         with DB() as db:
             rows = db.execute('SELECT * FROM ads').fetchall()
-            return [Ads(*row) for row in rows]
+            return [Ad(*row) for row in rows]
+
+    @staticmethod
+    def to_dict(ad):
+        return {
+            'id': ad.id,
+            'title': ad.title,
+            'description': ad.description,
+            'price': ad.price,
+            'date_created': ad.date_created,
+            'is_active': ad.is_active,
+            'owner_id': ad.owner_id,
+            'buyer_id': ad.buyer_id
+        }
 
     @staticmethod
     def find_by(column, data):
@@ -43,7 +56,7 @@ class Ads:
                 (data,)
             ).fetchone()
             if row:
-                return Ads(*row)
+                return Ad(*row)
 
     @staticmethod
     def update(id, column, data):
