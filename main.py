@@ -36,14 +36,14 @@ def users():
 
     if flask.request.method == 'POST':
         values = (None,
-                  flask.request.form['email'],
-                  User.hash_password(flask.request.form['password']),
-                  flask.request.form['name'],
-                  flask.request.form['address'],
-                  flask.request.form['telephone'])
+                  flask.request.json['email'],
+                  User.hash_password(flask.request.json['password']),
+                  flask.request.json['name'],
+                  flask.request.json['address'],
+                  flask.request.json['telephone'])
         User(*values).create()
 
-        user = User.find_by('email', flask.request.form['email'])
+        user = User.find_by('email', flask.request.json['email'])
         token = user.generate_token()
         return flask.jsonify({'token': token.decode('utf8')})
 
@@ -51,7 +51,7 @@ def users():
 @app.route('/login', methods=['POST'])
 def login():
     if flask.request.method == 'POST':
-        data = flask.request.form
+        data = flask.request.json
         user = User.find_by('email', data['email'])
 
         if not user or not user.verify_password(data['password']):
@@ -77,11 +77,11 @@ def users_id(id):
         })
 
     if flask.request.method == 'PATCH':
-        for value in flask.request.form:
+        for value in flask.request.json:
             if value in ['email', 'password']:
                 continue
 
-            User.update(user.id, value, flask.request.form[value])
+            User.update(user.id, value, flask.request.json[value])
         return "Success!"
 
     if flask.request.method == 'DELETE':
@@ -114,7 +114,7 @@ def ads(user):
         } for ads in Ads.all()])
 
     if flask.request.method == 'POST':
-        data = flask.request.form
+        data = flask.request.json
         Ads(*(
             None,
             data['title'],
@@ -145,8 +145,8 @@ def ads_id(id):
         })
     
     if flask.request.method == 'PATCH':
-        for value in flask.request.form:
-            Ads.update(ad.id, value, flask.request.form[value])
+        for value in flask.request.json:
+            Ads.update(ad.id, value, flask.request.json[value])
         return "Success!"
 
     if flask.request.method == 'DELETE':
