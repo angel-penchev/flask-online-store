@@ -65,7 +65,7 @@ def login():
 def users_id(id):
     user = User.find_by('id', id)
     if not user:
-        return flask.jsonify("Nor is the user found, nor is he a coffie machine!"), 418
+        return flask.jsonify('Nor is the user found, nor is he a coffie machine!'), 418
 
     if flask.request.method == 'GET':
         return flask.jsonify({
@@ -82,11 +82,11 @@ def users_id(id):
                 continue
 
             User.update(user.id, value, flask.request.json[value])
-        return "Success!"
+        return 'Success'
 
     if flask.request.method == 'DELETE':
         User.delete(user.id)
-        return "Success!"
+        return 'Success'
 
 
 @app.route('/ads', methods=['GET'])
@@ -144,16 +144,30 @@ def get_ads_id(id):
 def ads_id(user, id):
     ad = Ads.find_by('id', id)
     if ad.owner_id != user.id:
-        return "Unauthorized", 401
+        return 'Unauthorized', 401
 
     if flask.request.method == 'PATCH':
         for value in flask.request.json:
             Ads.update(ad.id, value, flask.request.json[value])
-        return "Success!"
+        return 'Success'
 
     if flask.request.method == 'DELETE':
         Ads.delete(ad.id)
-        return "Success!"
+        return 'Success'
+
+
+@app.route('/ads/<int:id>/buy', methods=['POST'])
+@require_login
+def ads_id_buy(user, id):
+    ad = Ads.find_by('id', id)
+
+    if ad.owner_id == user.id:
+        return 'You cannot buy your own ad'
+
+    Ads.update(ad.id, 'is_active', 0)
+    Ads.update(ad.id, 'buyer_id', user.id)
+
+    return 'Success '
 
 
 @app.route('/bought_ads', methods=['GET'])
